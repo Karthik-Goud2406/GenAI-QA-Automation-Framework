@@ -34,3 +34,11 @@ steps:
     inputs:
       pathToPublish: "reports_html"
       artifactName: "AllureReport"
+
+  
+    
+  - name: Upload Allure Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: allure-report
+        path: reports_html
