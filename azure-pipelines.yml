@@ -1,0 +1,36 @@
+trigger:
+  - main # Runs pipeline on commits to main branch
+
+pool:
+  vmImage: "ubuntu-latest" # Use hosted Ubuntu agent
+
+steps:
+  # 1. Set up Python
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: "3.13"
+      addToPath: true
+
+  # 2. Install dependencies and run tests
+  - script: |
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+      pytest --alluredir=reports/
+    displayName: "Run Pytest with Allure"
+
+  # 3. Install Allure CLI
+  - script: |
+      wget https://github.com/allure-framework/allure2/releases/download/2.35.1/allure-2.35.1.zip
+      unzip allure-2.35.1.zip
+    displayName: "Install Allure CLI"
+
+  # 4. Generate Allure Report
+  - script: |
+      ./allure-2.35.1/bin/allure generate reports/ -o reports_html --clean
+    displayName: "Generate Allure Report"
+
+  # 5. Publish Report as Artifact
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: "reports_html"
+      artifactName: "AllureReport"
